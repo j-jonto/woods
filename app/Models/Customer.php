@@ -57,16 +57,10 @@ class Customer extends Model
         $this->increment('total_receivables', $amount);
         $this->update(['last_transaction_date' => now()]);
 
-        // تسجيل فاتورة المبيعات كمعاملة
-        Payment::create([
-            'customer_id' => $this->id,
-            'amount' => $amount,
-            'payment_date' => now(),
-            'type' => 'invoice', // A receivable is an invoice
-            'reference' => $referenceType,
-            'notes' => $description ?? 'فاتورة مبيعات آجلة',
-            'created_by' => auth()->id(),
-        ]);
+        // The creation of a receivable is not a payment event.
+        // A payment record should only be created when a customer actually pays.
+        // The sales order or invoice itself represents the debt.
+        // By removing this, we prevent the CHECK constraint violation.
     }
 
     public function addPayment($amount, $description = null, $referenceType = null, $referenceId = null)
