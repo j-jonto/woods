@@ -61,14 +61,14 @@ class Supplier extends Model
         $this->increment('total_payables', $amount);
         $this->update(['last_transaction_date' => now()]);
 
-        // تسجيل المعاملة في جدول مدفوعات الموردين
+        // تسجيل فاتورة المشتريات كمعاملة
         SupplierPayment::create([
             'payment_no' => 'SP-' . date('Ymd') . '-' . time(),
             'supplier_id' => $this->id,
             'amount' => $amount,
             'payment_date' => now(),
-            'payment_method' => 'credit',
-            'notes' => $description ?? 'مشتريات آجلة',
+            'payment_method' => 'invoice', // This represents the invoice, not a payment method
+            'notes' => $description ?? 'فاتورة مشتريات آجلة',
             'created_by' => auth()->id(),
         ]);
     }
@@ -79,13 +79,13 @@ class Supplier extends Model
         $this->increment('total_payments', $amount);
         $this->update(['last_transaction_date' => now()]);
 
-        // تسجيل المعاملة في جدول مدفوعات الموردين
+        // تسجيل الدفعة للمورد
         SupplierPayment::create([
             'payment_no' => 'SP-' . date('Ymd') . '-' . time(),
             'supplier_id' => $this->id,
             'amount' => $amount,
             'payment_date' => now(),
-            'payment_method' => 'cash',
+            'payment_method' => 'payment', // This represents an actual payment
             'notes' => $description ?? 'دفع للمورد',
             'created_by' => auth()->id(),
         ]);

@@ -57,14 +57,14 @@ class Customer extends Model
         $this->increment('total_receivables', $amount);
         $this->update(['last_transaction_date' => now()]);
 
-        // تسجيل المعاملة في جدول المدفوعات
+        // تسجيل فاتورة المبيعات كمعاملة
         Payment::create([
             'customer_id' => $this->id,
             'amount' => $amount,
             'payment_date' => now(),
-            'type' => 'receipt',
+            'type' => 'invoice', // A receivable is an invoice
             'reference' => $referenceType,
-            'notes' => $description ?? 'مبيعات آجلة',
+            'notes' => $description ?? 'فاتورة مبيعات آجلة',
             'created_by' => auth()->id(),
         ]);
     }
@@ -75,14 +75,14 @@ class Customer extends Model
         $this->increment('total_payments', $amount);
         $this->update(['last_transaction_date' => now()]);
 
-        // تسجيل المعاملة في جدول المدفوعات
+        // تسجيل دفعة العميل كإيصال
         Payment::create([
             'customer_id' => $this->id,
             'amount' => $amount,
             'payment_date' => now(),
-            'type' => 'disbursement',
+            'type' => 'receipt', // A payment from a customer is a receipt
             'reference' => $referenceType,
-            'notes' => $description ?? 'دفع من العميل',
+            'notes' => $description ?? 'دفعة من العميل',
             'created_by' => auth()->id(),
         ]);
     }
@@ -96,7 +96,7 @@ class Customer extends Model
             'total_payments' => $this->total_payments,
             'credit_limit' => $this->credit_limit,
             'available_credit' => $this->credit_limit - $this->current_balance,
-            'is_over_limit' => $this->current_balance > $this->credit_limit,
+            'is_over_limit' => ($this->credit_limit > 0 && $this->current_balance > $this->credit_limit),
         ];
     }
 
