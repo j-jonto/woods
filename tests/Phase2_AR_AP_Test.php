@@ -126,6 +126,40 @@ try {
     }
     test_log("AR Test Passed!");
 
+    // 4. Test Accounts Receivable with Zero Credit Limit
+    test_log("--- Testing AR with Zero Credit Limit ---");
+    $zeroLimitCustomer = Customer::create([
+        'code' => 'CUST-TEST-ZERO',
+        'name' => 'Zero Limit Test Customer',
+        'credit_limit' => 0, // Explicitly set to 0, which is the default
+    ]);
+    $salesOrderZero = SalesOrder::create([
+        'order_no' => 'SO-TEST-ZERO-' . time(),
+        'order_date' => now(),
+        'customer_id' => $zeroLimitCustomer->id,
+        'payment_type' => 'credit',
+        'status' => 'draft',
+        'total_amount' => 50.00,
+    ]);
+    SalesOrderItem::create([
+        'sales_order_id' => $salesOrderZero->id,
+        'item_id' => $testItem->id,
+        'quantity' => 1,
+        'unit_price' => 50.00,
+        'amount' => 50.00,
+    ]);
+
+    // This should now pass without a credit limit exception
+    $soController->updateStatus(new Request(['status' => 'confirmed']), $salesOrderZero);
+
+    $zeroLimitCustomer->refresh();
+    test_log("Zero Limit Customer balance after credit sale: " . $zeroLimitCustomer->current_balance);
+    if ($zeroLimitCustomer->current_balance != 50.00) {
+        throw new Exception("AR Zero Limit Test Failed: Customer balance is incorrect. Expected 50.00, got " . $zeroLimitCustomer->current_balance);
+    }
+    test_log("AR Zero Limit Test Passed!");
+
+
     test_log("All tests passed successfully!");
 
 } catch (Exception $e) {

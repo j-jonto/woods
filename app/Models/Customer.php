@@ -96,7 +96,7 @@ class Customer extends Model
             'total_payments' => $this->total_payments,
             'credit_limit' => $this->credit_limit,
             'available_credit' => $this->credit_limit - $this->current_balance,
-            'is_over_limit' => $this->current_balance > $this->credit_limit,
+            'is_over_limit' => ($this->credit_limit > 0 && $this->current_balance > $this->credit_limit),
         ];
     }
 
