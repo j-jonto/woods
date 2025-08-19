@@ -17,6 +17,7 @@ use App\Models\Treasury;
 use App\Models\TreasuryTransaction;
 use App\Models\AuditLog;
 use App\Models\AuditAlert;
+use App\Models\RepresentativeTransaction;
 use Illuminate\Http\Request;
 
 class ReportController extends Controller
@@ -284,13 +285,21 @@ class ReportController extends Controller
         $expenses = Expense::whereBetween('expense_date', [$from, $to])->sum('amount');
         $revenues = Revenue::whereBetween('revenue_date', [$from, $to])->sum('amount');
 
+        // Add sales commissions to expenses
+        $commissions = RepresentativeTransaction::where('type', 'commission')
+            ->whereBetween('transaction_date', [$from, $to])
+            ->sum('amount');
+
+        $totalExpenses = $expenses + $commissions;
+
         $financialData = [
             'sales' => $sales,
             'purchases' => $purchases,
-            'expenses' => $expenses,
+            'expenses' => $totalExpenses,
             'revenues' => $revenues,
+            'commissions' => $commissions, // Pass commissions separately for display if needed
             'gross_profit' => $sales - $purchases,
-            'net_profit' => ($sales - $purchases) + $revenues - $expenses,
+            'net_profit' => ($sales - $purchases) + $revenues - $totalExpenses,
         ];
 
         return view('reports.financial_report', compact('financialData', 'from', 'to'));
