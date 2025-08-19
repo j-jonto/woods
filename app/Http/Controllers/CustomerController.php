@@ -22,6 +22,7 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'code' => 'required|unique:customers',
             'name' => 'required',
+            'credit_limit' => 'nullable|numeric|min:0',
         ]);
         Customer::create($validated + [
             'contact_person' => $request->input('contact_person'),
@@ -44,6 +45,7 @@ class CustomerController extends Controller
         $validated = $request->validate([
             'code' => 'required|unique:customers,code,' . $customer->id,
             'name' => 'required',
+            'credit_limit' => 'nullable|numeric|min:0',
         ]);
         $customer->update($validated + [
             'contact_person' => $request->input('contact_person'),

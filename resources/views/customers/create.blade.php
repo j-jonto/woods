@@ -27,6 +27,11 @@
             <textarea class="form-control" id="address" name="address">{{ old('address') }}</textarea>
         </div>
         <div class="mb-3">
+            <label for="credit_limit" class="form-label">الحد الائتماني (اختياري)</label>
+            <input type="number" step="0.01" min="0" class="form-control" id="credit_limit" name="credit_limit" value="{{ old('credit_limit', 0) }}">
+            <div class="form-text">اترك القيمة 0 لحد ائتماني غير محدود.</div>
+        </div>
+        <div class="mb-3">
             <label for="contact_person" class="form-label">الشخص المسؤول (اختياري)</label>
             <input type="text" class="form-control" id="contact_person" name="contact_person" value="{{ old('contact_person') }}">
         </div>
