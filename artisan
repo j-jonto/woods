@@ -1,0 +1,43 @@
+#!/usr/bin/env php
+<?php
+
+/*
+|--------------------------------------------------------------------------
+| Turn On The Lights
+|--------------------------------------------------------------------------
+|
+| This script configures and boots Laravel. We'll load the auto-loader
+| and the IoC container so that we can run the various CLI commands
+| that are designed to help you with your application development.
+|
+*/
+
+define('LARAVEL_START', microtime(true));
+
+if (file_exists($autoload = __DIR__.'/vendor/autoload.php')) {
+    require_once $autoload;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Run The Artisan Application
+|--------------------------------------------------------------------------
+|
+| When we run the console application, the current CLI command will be
+| executed in this console and the response is sent back to a terminal
+| or more commonly a computer program. We will not be returning here.
+|
+*/
+
+$app = require_once __DIR__.'/bootstrap/app.php';
+
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+
+$status = $kernel->handle(
+    $input = new Symfony\Component\Console\Input\ArgvInput(),
+    new Symfony\Component\Console\Output\ConsoleOutput()
+);
+
+$kernel->terminate($input, $status);
+
+exit($status); 
